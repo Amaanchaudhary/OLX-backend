@@ -5,6 +5,7 @@ const user = new Schema({
         type: String    
     },
     email: String,
+    number : Number,
     password: String,
     cart: [String],  
 })

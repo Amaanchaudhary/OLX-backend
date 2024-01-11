@@ -1,6 +1,7 @@
 import UserModals from "../Modals/User.modals.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken'
+import ProductModals from "../Modals/Product.modals.js";
 
 export const Login = async (req, res) => {
     // res.send("Hello from login")
@@ -39,17 +40,18 @@ export const Register = async (req, res) => {
     // res.send("Hello from login") 
     try {
         // console.log(req.body, "Body");
-        const { name, email, password} = req.body.userData;
+        const { name, email, number , password} = req.body.userData;
 
         const hashedPassword = await bcrypt.hash(password , 10);
 
         // console.log(hashedPassword); 
 
-        if (!name || !email || !password) return res.status(401).json({ success: false, message: "All Fields are mandatory." })
+        if (!name || !email || !number ||!password) return res.status(401).json({ success: false, message: "All Fields are mandatory." })
 
         const user = new UserModals({
             name: name,
             email,
+            number,
             password : hashedPassword   
         })
 
@@ -85,3 +87,29 @@ export const getCurrentUser = async (req , res) => {
         return res.status(500).json({success : false , message : error})
     }
 }
+
+export const getAllInfo = async (req , res) => {
+    try{
+        const {id} = req.body
+    
+        if(!id) return res.status(401).json({success : false , message : "id is required"})
+        // console.log(id , "id")
+
+        const user = await UserModals.findById(id).select("-password -__v -_id");
+
+        const product = await ProductModals.find({userId : id}).select("-name -price -category -image -createdAt -updatedAt -__v -userId")
+
+        // console.log(product , 'products')
+
+        // console.log(user, 'user');
+
+        if(!user) return res.status(401).json({success : false , message : "User not Found"})
+
+        return res.status(200).json({success : true , info :{ user , productAdded : product.length}})
+
+    }catch(error){
+        return res.status(500).json({success : false , message : error})
+    }
+}
+
+

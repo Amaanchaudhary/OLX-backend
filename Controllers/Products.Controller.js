@@ -1,4 +1,5 @@
 import ProductModals from "../Modals/Product.modals.js"
+import UserModals from "../Modals/User.modals.js"
 
 export const getllProducts = async (req, res) => {
     try {
@@ -62,11 +63,13 @@ export const getSingleProducts = async (req, res) => {
         if (!ProductId) return res.status(404).json({ success: false, message: "Product ID is required" })
 
         const product = await ProductModals.findById(ProductId).select("-createdAt -updatedAt -__v");
-        // console.log(product)
+        console.log(product , 'product')
+
+        const user = await UserModals.findById(product.userId).select("-_id -email -password -cart -__v")
+        console.log(user, 'user')
 
         if (product) {
-            // console.log("heello")
-            return res.status(200).json({ success: true, message: "Product Found.", product : product })
+            return res.status(200).json({ success: true, message: "Product Found.", data :{ product , user}})
         }
         
         return res.status(404).json({ sucess: false, message: "Product Not found" })
