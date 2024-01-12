@@ -56,10 +56,8 @@ export const yourProducts = async (req, res) => {
 
 export const getSingleProducts = async (req, res) => {
     try {
-        // console.log('Hello from backend')
         const { id: ProductId } = req.query
-        // console.log(ProductId)
-
+        console.log(ProductId , 'ads')
         if (!ProductId) return res.status(404).json({ success: false, message: "Product ID is required" })
 
         const product = await ProductModals.findById(ProductId).select("-createdAt -updatedAt -__v");
@@ -99,10 +97,29 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.query
-        // console.log(id)
+        // console.log(id , 'id')
         if (!id) return res.status(404).json({ success: false, message: "Id not Found" })
 
         await ProductModals.findByIdAndDelete(id)
+        await UserModals.updateMany(
+            {},
+            { $pull : {cart : id}}
+        )
+        // const cartS = await UserModals.find({}).select("cart -_id")
+
+        // console.log(cartS , 'before')
+
+        // for(var i = 0 ; i < cartS.length ; i++){
+        //     for(var j = 0 ; j < cartS[i].cart.length ; j++){
+        //         if(id == cartS[i].cart[j]){
+        //             cartS[i].cart.splice(j,1)
+        //             await UserModals.update({cart : cartS[i].cart})
+        //             j--
+        //         }
+        //     }
+        // }
+        // console.log(cartS[0].cart[2] , "ids")
+        // console.log(cartS , 'after')
 
         return res.status(200).json({ success: true, message: "Product Deleted successfully" })
     }
